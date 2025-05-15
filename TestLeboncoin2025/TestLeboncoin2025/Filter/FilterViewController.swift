@@ -1,22 +1,19 @@
 //
-//  ListViewController.swift
+//  FilterViewController.swift
 //  TestLeboncoin2025
 //
-//  Created by Koussaïla Ben Mamar on 14/05/2025.
+//  Created by Koussaïla Ben Mamar on 15/05/2025.
 //
 
 import UIKit
 
-final class ListViewController: UIViewController {
-
-    var viewModel: ListViewModel?
+final class FilterViewController: UIViewController {
     
-    private var selectedIndex = 0
+    var viewModel: FilterViewModel?
     
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
-        view.backgroundColor = .brown
     }
 }
 
@@ -25,14 +22,14 @@ final class ListViewController: UIViewController {
 import SwiftUI
 
 @available(iOS 13.0, *)
-struct ListViewControllerPreview: PreviewProvider {
+struct FilterViewControllerPreview: PreviewProvider {
     static var previews: some View {
         
         ForEach(deviceNames, id: \.self) { deviceName in
             // Dark mode
             UIViewControllerPreview {
                 let navigationController = UINavigationController()
-                let builder = ListModuleBuilder()
+                let builder = FilterModuleBuilder()
                 let vc = builder.buildModule(testMode: true)
                 navigationController.pushViewController(vc, animated: false)
             

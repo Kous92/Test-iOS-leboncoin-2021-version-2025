@@ -1,22 +1,27 @@
 //
-//  ListViewController.swift
+//  DetailViewController.swift
 //  TestLeboncoin2025
 //
-//  Created by Koussaïla Ben Mamar on 14/05/2025.
+//  Created by Koussaïla Ben Mamar on 15/05/2025.
 //
 
 import UIKit
 
-final class ListViewController: UIViewController {
-
-    var viewModel: ListViewModel?
+final class DetailViewController: UIViewController {
     
-    private var selectedIndex = 0
+    var viewModel: DetailViewModel?
     
     override func viewDidLoad() {
         super.viewDidLoad()
+
         // Do any additional setup after loading the view.
-        view.backgroundColor = .brown
+    }
+}
+
+extension DetailViewController {
+    // Dependency injection
+    func configure(with viewModel: DetailViewModel) {
+        self.viewModel = viewModel
     }
 }
 
@@ -25,14 +30,14 @@ final class ListViewController: UIViewController {
 import SwiftUI
 
 @available(iOS 13.0, *)
-struct ListViewControllerPreview: PreviewProvider {
+struct DetailViewControllerPreview: PreviewProvider {
     static var previews: some View {
         
         ForEach(deviceNames, id: \.self) { deviceName in
             // Dark mode
             UIViewControllerPreview {
                 let navigationController = UINavigationController()
-                let builder = ListModuleBuilder()
+                let builder = DetailModuleBuilder(itemViewModel: ItemViewModel())
                 let vc = builder.buildModule(testMode: true)
                 navigationController.pushViewController(vc, animated: false)
             
