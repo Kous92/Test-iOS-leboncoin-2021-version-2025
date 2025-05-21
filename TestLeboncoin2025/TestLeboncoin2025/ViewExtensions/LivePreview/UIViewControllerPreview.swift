@@ -15,7 +15,7 @@ let deviceNames: [String] = [
     "iPhone 16 Pro",
     "iPhone SE (3rd generation)",
     "iPhone 16e",
-    "iPad Pro (11-inch) (M4)"
+    "iPad Pro 11-inch (M4)"
 ]
 
 /// It allows to live preview a UIViewController made with UIKit with same SwiftUI preview method. Very helpful to save time when making the view (programmatically), to avoir also building every time to check how it looks.
