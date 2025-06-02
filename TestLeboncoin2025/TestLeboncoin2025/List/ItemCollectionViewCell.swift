@@ -19,7 +19,7 @@ final class ItemCollectionViewCell: UICollectionViewCell {
         imageView.layer.cornerRadius = 10
         imageView.clipsToBounds = true
         imageView.contentMode = .scaleAspectFit
-        // imageView.backgroundColor = .systemOrange
+        
         return imageView
     }()
     
@@ -33,7 +33,7 @@ final class ItemCollectionViewCell: UICollectionViewCell {
             for: UIFont.systemFont(ofSize: 14, weight: .semibold)
         )
         label.adjustsFontForContentSizeCategory = true
-        // label.backgroundColor = .blue
+        
         return label
     }()
     
@@ -46,7 +46,7 @@ final class ItemCollectionViewCell: UICollectionViewCell {
             for: UIFont.systemFont(ofSize: 11, weight: .medium)
         )
         label.adjustsFontForContentSizeCategory = true
-        // label.backgroundColor = .red
+        
         return label
     }()
     
@@ -59,7 +59,7 @@ final class ItemCollectionViewCell: UICollectionViewCell {
             for: UIFont.systemFont(ofSize: 14, weight: .semibold)
         )
         label.adjustsFontForContentSizeCategory = true
-        // label.backgroundColor = .green
+        
         return label
     }()
     
@@ -76,6 +76,7 @@ final class ItemCollectionViewCell: UICollectionViewCell {
         label.backgroundColor = .orange
         label.layer.masksToBounds = true
         label.layer.cornerRadius = 6
+        
         return label
     }()
     
@@ -90,12 +91,6 @@ final class ItemCollectionViewCell: UICollectionViewCell {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
-    /*
-     override func setSelected(_ selected: Bool, animated: Bool) {
-     super.setSelected(selected, animated: animated)
-     }
-     */
     
     // À chaque fois qu'une cellule est réutilisée (lors du scroll), cela sera utile pour avoir la bonne image à l'index associé
     override func prepareForReuse() {
@@ -125,11 +120,7 @@ final class ItemCollectionViewCell: UICollectionViewCell {
         // Ajout des contraintes: Auto Layout par code
         var constraints = [NSLayoutConstraint]()
         
-        // Contraintes image: format 120x120 avec 10 du haut, de la gauche et du bas
-        // constraints.append(itemImage.widthAnchor.constraint(equalToConstant: 120))
-        constraints.append(itemImage.heightAnchor.constraint(equalTo: itemImage.widthAnchor, multiplier: 3.0/4.0))
         constraints.append(itemImage.heightAnchor.constraint(equalTo: itemImage.widthAnchor, multiplier: 0.75))
-        // constraints.append(itemImage.heightAnchor.constraint(equalToConstant: 150))
         constraints.append(itemImage.topAnchor.constraint(equalTo: contentView.topAnchor))
         constraints.append(itemImage.leadingAnchor.constraint(equalTo: contentView.leadingAnchor))
         constraints.append(itemImage.trailingAnchor.constraint(equalTo: contentView.trailingAnchor))
@@ -162,10 +153,12 @@ final class ItemCollectionViewCell: UICollectionViewCell {
     }
     
     func configure(with viewModel: ItemViewModel) {
+        let price = formatPriceInEuros(with: viewModel.itemPrice)
+        
         self.viewModel = viewModel
         itemLabel.text = viewModel.itemTitle
         itemCategoryLabel.text = viewModel.itemCategory
-        itemPriceLabel.text = "\(viewModel.itemPrice) €"
+        itemPriceLabel.text = price
         itemUrgentLabel.text = viewModel.isUrgent ? "URGENT" : "NON URGENT"
         itemUrgentLabel.isHidden = viewModel.isUrgent ? false : true
         
@@ -184,7 +177,7 @@ final class ItemCollectionViewCell: UICollectionViewCell {
         itemCategoryLabel.accessibilityValue = viewModel.itemCategory
         
         itemPriceLabel.accessibilityLabel = "Prix"
-        itemPriceLabel.accessibilityValue = "\(viewModel.itemPrice) euros"
+        itemPriceLabel.accessibilityValue = price
         
         itemUrgentLabel.accessibilityLabel = "Urgence"
         itemUrgentLabel.accessibilityValue = viewModel.isUrgent ? "Urgent" : "Non urgent"

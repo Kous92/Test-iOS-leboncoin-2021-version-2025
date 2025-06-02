@@ -10,7 +10,6 @@ import UIKit
 final class FilterViewController: UIViewController {
     
     var viewModel: FilterViewModel?
-
     
     private var actualSelectedIndex = UserDefaults.standard.integer(forKey: "selectedCategory") // 0 si aucun paramètre sauvegardé
     private var selectedCategory = "Toutes catégories"

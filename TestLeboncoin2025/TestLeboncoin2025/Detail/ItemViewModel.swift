@@ -5,7 +5,7 @@
 //  Created by Koussaïla Ben Mamar on 15/05/2025.
 //
 
-struct ItemViewModel {
+struct ItemViewModel: Sendable {
     let image: String
     let itemTitle: String
     let itemCategory: String
@@ -38,8 +38,10 @@ extension ItemViewModel {
             ItemViewModel(image: "https://img-prd-pim.poorvika.com/prodvarval/Apple-iphone-16-pro-black-titanium-128gb-Front-Back-View-Thumbnail.png", itemTitle: "iPhone 16 Pro 512 GB noir batterie neuve", itemCategory: "Multimédia", itemPrice: 1200, isUrgent: true, itemDescription: "iPhone 16 Pro couleur noir, 512 GB, batterie neuve.", itemAddedDate: "2025-05-18T20:13:31+0000"),
             ItemViewModel(image: "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcQe8p5q6MaZgbww-KSw3mAHIXkcPTRaeJC8y6G8QS6ypX88cKrqOhyxpn1qCyE8iMmolo6UnDXgSKBqnlO9LLxkBCP26ZkSzzph_cofqFTpkf3yMtPnUWh54w0P6-phPtV4Q_wHOg&usqp=CAc", itemTitle: "iPhone 16 Pro Max 256 GB sable neuf", itemCategory: "Multimédia", itemPrice: 1400, isUrgent: true, itemDescription: "iPhone 16 Pro Max neuf couleur sable, 256 GB, batterie neuve, non déballé dans sa boîte d'origine, facture Apple officielle incluse.", itemAddedDate: "2025-05-19T17:42:29+0000"),
             ItemViewModel(image: "https://www.peugeottalk.de/cms/images/avatars/7c/3752-7cfd12ec9a0125062609ecb2bae5fce78847ae7d.png", itemTitle: "Peugeot 208 GT", itemCategory: "Véhicule", itemPrice: 21000, isUrgent: false, itemDescription: "Peugeot 208 GT année 2025 bleue toutes options.", itemAddedDate: "2025-05-22T11:17:45+0000"),
+            ItemViewModel(image: "https://s.yimg.com/ny/api/res/1.2/xeNHeqSESrNc0Q1Jmgc0VA--/YXBwaWQ9aGlnaGxhbmRlcjt3PTY0MDtoPTY0MA--/https://media.zenfs.com/fr/rmc_sport_articles_552/441c8d09cef6cd7530aeda85b01fc6a6", itemTitle: "Maillot collector du PSG Champions of Europe 2025", itemCategory: "Mode", itemPrice: 200, isUrgent: true, itemDescription: "Maillot collector du PSG avec l'étoile pour la victoire historique du trophée de la Ligue des Champions et le flocage collector Champions of Europe 2025.", itemAddedDate: "2025-05-02T18:17:53+0000"),
             ItemViewModel(image: "https://cf.bstatic.com/xdata/images/hotel/max1024x768/258858602.jpg?k=85821b7952d70a6569617ba2ad412b3566b5d4d4dcf2c0a0e71a2d4d7042f0b5&o=&hp=1", itemTitle: "Appartement duplex Paris 15ème Convention", itemCategory: "Multimédia", itemPrice: 2300000, isUrgent: false, itemDescription: "Appartement 5 pièces en duplex situé dans Paris 15ème, rue de la Convention. Superficie de 175 m2, avec grande terrasse dotée d'une vue imprenable sur Paris.", itemAddedDate: "2025-05-18T20:13:31+0000"),
-            ItemViewModel(image: "https://m.media-amazon.com/images/I/61I9PKPrrpL._AC_UF894,1000_QL80_.jpg", itemTitle: "Pot de crème de noisettes grillées El Mordjene 750g", itemCategory: "Alimentation", itemPrice: 15, isUrgent: false, itemDescription: "Pot de crème de noisettes grillées El Mordjene 750g de la marque CEBON, goût Kinder Bueno.", itemAddedDate: "2025-05-18T20:13:31+0000")
+            ItemViewModel(image: "https://lessaveursdeurope.ca/cdn/shop/files/2901391F-0E9C-4B3D-B5D4-7213ECD3847F.jpg?v=1746985785&width=900", itemTitle: "Pot de crème de noisettes grillées El Mordjene 700g", itemCategory: "Alimentation", itemPrice: 15, isUrgent: false, itemDescription: "Pot de crème de noisettes grillées El Mordjene 700g de la marque CEBON, goût Kinder Bueno.", itemAddedDate: "2025-05-18T20:13:31+0000"),
+            ItemViewModel(image: "https://f.nooncdn.com/p/pzsku/ZD34C2FCBA93EA1744CA6Z/45/1746252389/f0155059-328f-441a-b694-477da1a669cc.jpg?width=800", itemTitle: "Pot de pâte à tartiner aux noisettes et cacao El Mordjene 700g", itemCategory: "Alimentation", itemPrice: 15, isUrgent: false, itemDescription: "Pot de pâte à tartiner aux noisettes et cacao El Mordjene 700g de la marque CEBON, goût Cacao (type Ferrero Rocher), moins sucré que le Nutella.", itemAddedDate: "2025-05-29T20:20:12+0000")
             ]
     }
 }

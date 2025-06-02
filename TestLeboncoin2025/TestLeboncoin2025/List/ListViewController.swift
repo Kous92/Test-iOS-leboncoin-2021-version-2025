@@ -39,19 +39,16 @@ final class ListViewController: UIViewController {
         return searchBar
     }()
     
-    private var itemsVm: [ItemViewModel] = ItemViewModel.getFakeItems()
-    private var filteredItemsVm: [ItemViewModel] = []
-    
-    private var searchTask: Task<Void, Never>?
-    
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .systemBackground
         
-        filteredItemsVm = itemsVm
-        
         buildViewHierarchy()
         setConstraints()
+        setBindings()
+        setNavigationBar()
+        
+        viewModel?.fetchItemList()
     }
     
     private func buildViewHierarchy() {
@@ -73,25 +70,55 @@ final class ListViewController: UIViewController {
             itemCollectionView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         ])
     }
+    
+    // Attention à être explicite en mettant bien @MainActor en premier dans la closure.
+    private func setBindings() {
+        viewModel?.onDataUpdated = { @MainActor [weak self] in
+            print("Data update")
+            self?.itemCollectionView.reloadData()
+        }
+        
+        viewModel?.isLoadingData = { @MainActor [weak self] isLoading in
+            print("Loading data: \(isLoading)")
+        }
+    }
 }
 
 extension ListViewController {
-    
+    private func setNavigationBar() {
+        let onClickSourceButton = UIAction(title: "") { [weak self] action in
+            self?.viewModel?.goToFilterView()
+        }
+        
+        navigationItem.title = "Liste des articles"
+        let navItem = UIBarButtonItem(image: UIImage(systemName: "list.bullet"), primaryAction: onClickSourceButton)
+        navigationItem.rightBarButtonItem = navItem
+        navigationController?.navigationBar.tintColor = .label
+        
+        // For UI testing
+        navigationItem.rightBarButtonItem?.accessibilityIdentifier = "listButton"
+    }
 }
 
 extension ListViewController: UICollectionViewDataSource {
     // MARK: - UICollectionViewDataSource
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        print("Items disponibles: \(filteredItemsVm.count)")
-        return filteredItemsVm.count
+        print("Items disponibles: \(viewModel?.numberOfItems() ?? 0)")
+        return viewModel?.numberOfItems() ?? 0
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: ItemCollectionViewCell.identifier, for: indexPath) as? ItemCollectionViewCell else {
+        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: ItemCollectionViewCell.identifier, for: indexPath) as? ItemCollectionViewCell, let itemViewModel = viewModel?.getItemViewModel(at: indexPath) else {
             fatalError("Failed to dequeue ItemCollectionViewCell")
         }
-        cell.configure(with: filteredItemsVm[indexPath.item])
+        cell.configure(with: itemViewModel)
         return cell
+    }
+}
+
+extension ListViewController: UICollectionViewDelegate {
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        viewModel?.goToDetailView(selectedViewModelIndex: indexPath.item)
     }
 }
 
@@ -133,7 +160,7 @@ extension ListViewController: UISearchBarDelegate {
     }
     
     func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
-        filteredItemsVm = itemsVm
+        viewModel?.searchQuery = ""
         searchBar.text = ""
         itemCollectionView.reloadData()
         self.searchBar.setShowsCancelButton(false, animated: true)
@@ -142,30 +169,7 @@ extension ListViewController: UISearchBarDelegate {
     
     // MARK: - UISearchBarDelegate
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
-        /*
-        searchTask?.cancel()
-        searchTask = Task { [weak self] in
-            guard let self = self else { return }
-            // Debounce: attendre 300 ms
-            try? await Task.sleep(nanoseconds: 300_000_000)
-            
-            // Si la tâche a été annulée entre-temps, ne rien faire
-            guard !Task.isCancelled else { return }
-            
-            // Appliquer le filtre
-            await MainActor.run {
-                if searchText.isEmpty {
-                    filteredItemsVm = itemsVm
-                } else {
-                    filteredItemsVm = itemsVm.filter { viewModel in
-                        let title = viewModel.itemTitle.lowercased()
-                        return title.contains(searchText.lowercased())
-                    }
-                }
-                self.itemCollectionView.reloadData()
-            }
-        }
-        */
+        viewModel?.searchQuery = searchText
     }
     
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {

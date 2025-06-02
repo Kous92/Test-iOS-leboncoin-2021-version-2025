@@ -10,7 +10,7 @@ import UIKit
 
 // On 4th and 5th SOLID principles of Interface Segregation and Dependency Inversion
 @MainActor protocol ListViewControllerDelegate: AnyObject {
-    // func goToDetailView(with itemViewModel: ItemViewModel)
+    func goToDetailView(with itemViewModel: ItemViewModel)
     func goToFilterView()
     func displayErrorAlert(with errorMessage: String)
 }
@@ -49,7 +49,6 @@ import UIKit
 }
 
 extension ListCoordinator: ListViewControllerDelegate {
-    /*
     func goToDetailView(with itemViewModel: ItemViewModel) {
         // Transition is separated here into a child coordinator.
         print("[ListCoordinator] Setting child coordinator: DetailCoordinator.")
@@ -63,7 +62,6 @@ extension ListCoordinator: ListViewControllerDelegate {
         print("[ListCoordinator] Go to DetailViewController.")
         detailCoordinator.start()
     }
-     */
     
     func goToFilterView() {
         // Transition is separated here into a child coordinator.
