@@ -15,9 +15,14 @@ import Foundation
     var onDataUpdated: (@Sendable @MainActor () -> Void)?
     var isLoadingData: (@Sendable @MainActor (_ loading: Bool) -> Void)?
     
+    // Use cases
+    private let itemCategoryFetchUseCase: ItemCategoryFetchUseCaseProtocol
+    private let itemListFetchUseCase: ItemListFetchUseCaseProtocol
+    
     // La liste des articles
-    nonisolated(unsafe) private var itemsViewModels: [ItemViewModel] = ItemViewModel.getFakeItems()
+    nonisolated(unsafe) private var itemsViewModels: [ItemViewModel] = []
     nonisolated(unsafe) private var filteredItemsViewModels: [ItemViewModel] = []
+    nonisolated(unsafe) private var itemCategoriesViewModels: [ItemCategoryViewModel] = []
     
     // La tâche de recherche
     private var searchTask: Task<Void, Never>?
@@ -31,7 +36,9 @@ import Foundation
     }
     
     // C'est ici qu'on injecte les dépendances des couches métiers et données de la Clean Architecture
-    init() {
+    init(itemCategoryFetchUseCase: ItemCategoryFetchUseCaseProtocol, itemListFetchUseCase: ItemListFetchUseCaseProtocol) {
+        self.itemCategoryFetchUseCase = itemCategoryFetchUseCase
+        self.itemListFetchUseCase = itemListFetchUseCase
         // L'écoute du flux asynchrone de recherche est initialisé
         observeSearchQuery()
         print("ListViewModel initialisé.")
@@ -114,10 +121,26 @@ import Foundation
     
     nonisolated private func fetchItemCategories() async {
         print("Thread fetchItemCategories: \(Thread.currentThread)")
+        
+        do {
+            itemCategoriesViewModels = try await itemCategoryFetchUseCase.execute()
+        } catch APIError.errorMessage(let errorMessage) {
+            await sendErrorMessage(with: errorMessage)
+        } catch {
+            await sendErrorMessage(with: error.localizedDescription)
+        }
     }
     
     nonisolated private func fetchItems() async {
         print("Thread fetchItems: \(Thread.currentThread)")
+        do {
+            itemsViewModels = try await itemListFetchUseCase.execute()
+        } catch APIError.errorMessage(let errorMessage) {
+            await sendErrorMessage(with: errorMessage)
+        } catch {
+            await sendErrorMessage(with: error.localizedDescription)
+        }
+        
         filteredItemsViewModels = itemsViewModels
     }
     
@@ -145,6 +168,7 @@ import Foundation
 // MARK: - Partie de navigation. Étant donné que cela est géré par le Coordinator et en lien avec la vue via le NavigationController, les fonctions doivent être isolées dans le MainActor (le main thread).
 extension ListViewModel {
     private func sendErrorMessage(with errorMessage: String) {
+        print(errorMessage)
         coordinator?.displayErrorAlert(with: errorMessage)
     }
     

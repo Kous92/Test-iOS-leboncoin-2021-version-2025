@@ -162,7 +162,7 @@ final class ItemCollectionViewCell: UICollectionViewCell {
         itemUrgentLabel.text = viewModel.isUrgent ? "URGENT" : "NON URGENT"
         itemUrgentLabel.isHidden = viewModel.isUrgent ? false : true
         
-        if let url = URL(string: viewModel.image) {
+        if let url = URL(string: viewModel.smallImage) {
             // Téléchargement asynchrone de l'image
             itemImage.loadImage(from: url, placeholder: "noImage")
         } else {

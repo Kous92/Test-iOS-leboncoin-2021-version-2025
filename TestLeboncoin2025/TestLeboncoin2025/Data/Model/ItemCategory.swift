@@ -5,7 +5,8 @@
 //  Created by Koussaïla Ben Mamar on 04/06/2025.
 //
 
-struct ItemCategory: Decodable, Sendable {
+// Codable car nécessaire pour la mise en cache
+struct ItemCategory: Codable, Sendable {
     let id: Int
     let name: String
 }

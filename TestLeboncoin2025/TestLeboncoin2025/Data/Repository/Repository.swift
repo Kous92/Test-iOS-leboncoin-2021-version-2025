@@ -5,7 +5,7 @@
 //  Created by Koussaïla Ben Mamar on 04/06/2025.
 //
 
-protocol Repository: AnyObject, Sendable {
+protocol Repository: Sendable {
     func fetchItems() async throws -> [ItemDTO]
     func fetchItemCategories() async throws -> [ItemCategoryDTO]
 }

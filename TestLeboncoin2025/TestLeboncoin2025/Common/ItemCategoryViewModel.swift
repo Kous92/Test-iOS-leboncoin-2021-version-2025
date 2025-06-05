@@ -13,6 +13,11 @@ struct ItemCategoryViewModel: Sendable {
         self.id = id
         self.name = name
     }
+    
+    init(with itemCategory: ItemCategoryDTO) {
+        self.id = itemCategory.id
+        self.name = itemCategory.name
+    }
 }
 
 extension ItemCategoryViewModel {

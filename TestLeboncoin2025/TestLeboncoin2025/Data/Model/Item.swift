@@ -5,7 +5,8 @@
 //  Created by Koussaïla Ben Mamar on 04/06/2025.
 //
 
-struct Item: Decodable, Sendable {
+// Codable car nécessaire pour la mise en cache
+struct Item: Codable, Sendable {
     let id, categoryID: Int
     let title, description: String
     let price: Int
@@ -17,7 +18,9 @@ struct Item: Decodable, Sendable {
     enum CodingKeys: String, CodingKey {
         case id
         case categoryID = "category_id"
-        case title, description, price
+        case title
+        case description = "description"
+        case price
         case imagesURL = "images_url"
         case creationDate = "creation_date"
         case isUrgent = "is_urgent"
@@ -26,7 +29,7 @@ struct Item: Decodable, Sendable {
 }
 
 // MARK: - ImagesURL
-struct ImagesURL: Decodable, Sendable {
+struct ImagesURL: Codable, Sendable {
     let small, thumb: String?
 }
 
