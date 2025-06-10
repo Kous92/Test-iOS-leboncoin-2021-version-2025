@@ -13,6 +13,15 @@ struct ItemCategoryDTO: Sendable {
         self.id = itemCategory.id
         self.name = itemCategory.name
     }
+    
+    init(with viewModel: ItemCategoryViewModel) {
+        self.id = viewModel.id
+        self.name = viewModel.name
+    }
+    
+    func getEncodableItemCategory() -> ItemCategory {
+        return ItemCategory(id: self.id, name: self.name)
+    }
 }
 
 extension ItemCategoryDTO {

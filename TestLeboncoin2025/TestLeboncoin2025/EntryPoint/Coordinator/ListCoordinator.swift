@@ -11,7 +11,7 @@ import UIKit
 // On 4th and 5th SOLID principles of Interface Segregation and Dependency Inversion
 @MainActor protocol ListViewControllerDelegate: AnyObject {
     func goToDetailView(with itemViewModel: ItemViewModel)
-    func goToFilterView()
+    func goToFilterView(with itemCategoriesViewModels: [ItemCategoryViewModel])
     func displayErrorAlert(with errorMessage: String)
 }
 
@@ -63,10 +63,10 @@ extension ListCoordinator: ListViewControllerDelegate {
         detailCoordinator.start()
     }
     
-    func goToFilterView() {
+    func goToFilterView(with itemCategoriesViewModels: [ItemCategoryViewModel]) {
         // Transition is separated here into a child coordinator.
         print("[ListCoordinator] Setting child coordinator: FilterCoordinator.")
-        let filterCoordinator = FilterCoordinator(navigationController: navigationController, builder: FilterModuleBuilder())
+        let filterCoordinator = FilterCoordinator(navigationController: navigationController, builder: FilterModuleBuilder(with: itemCategoriesViewModels))
         
         // Adding link to the parent with self, be careful to retain cycle
         filterCoordinator.parentCoordinator = self

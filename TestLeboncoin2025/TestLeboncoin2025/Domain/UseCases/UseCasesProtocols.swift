@@ -14,3 +14,11 @@ protocol ItemListFetchUseCaseProtocol: Sendable {
 protocol ItemCategoryFetchUseCaseProtocol: Sendable {
     func execute() async throws -> [ItemCategoryViewModel]
 }
+
+protocol LoadSavedSelectedCategoryUseCaseProtocol: Sendable {
+    func execute() async throws -> ItemCategoryDTO
+}
+
+protocol SaveSelectedCategoryUseCaseProtocol: Sendable {
+    func execute(with savedCategory: ItemCategoryDTO) async throws
+}

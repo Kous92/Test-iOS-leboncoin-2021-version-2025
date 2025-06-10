@@ -39,6 +39,16 @@ final class ListViewController: UIViewController {
         return searchBar
     }()
     
+    private lazy var loadingSpinner: UIActivityIndicatorView = {
+        let spinner = UIActivityIndicatorView()
+        spinner.translatesAutoresizingMaskIntoConstraints = false
+        spinner.style = .medium
+        spinner.transform = CGAffineTransform(scaleX: 2, y: 2)
+        spinner.hidesWhenStopped = true
+        
+        return spinner
+    }()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .systemBackground
@@ -51,12 +61,22 @@ final class ListViewController: UIViewController {
         viewModel?.fetchItemList()
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        viewModel?.loadSelectedItemCategory()
+    }
+    
     private func buildViewHierarchy() {
         view.addSubview(searchBar)
         view.addSubview(itemCollectionView)
+        view.addSubview(loadingSpinner)
     }
     
     private func setConstraints() {
+        NSLayoutConstraint.activate([
+            loadingSpinner.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            loadingSpinner.centerYAnchor.constraint(equalTo: view.centerYAnchor)
+        ])
+        
         NSLayoutConstraint.activate([
             searchBar.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
             searchBar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
@@ -80,6 +100,7 @@ final class ListViewController: UIViewController {
         
         viewModel?.isLoadingData = { @MainActor [weak self] isLoading in
             print("Loading data: \(isLoading)")
+            self?.setLoadingSpinner(isLoading: isLoading)
         }
     }
 }
@@ -97,6 +118,14 @@ extension ListViewController {
         
         // For UI testing
         navigationItem.rightBarButtonItem?.accessibilityIdentifier = "listButton"
+    }
+    
+    private func setLoadingSpinner(isLoading: Bool) {
+        if isLoading {
+            loadingSpinner.startAnimating()
+        } else {
+            loadingSpinner.stopAnimating()
+        }
     }
 }
 
@@ -178,7 +207,7 @@ extension ListViewController: UISearchBarDelegate {
     }
 }
 
-// Ready to live preview and make views much faster
+// Pour prévisualiser en direct et créer les vues plus rapidement
 #if DEBUG
 @available(iOS 17.0, *)
 #Preview("ListViewController preview") {

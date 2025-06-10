@@ -32,7 +32,7 @@ struct ItemViewModel: Sendable {
         self.smallImage = item.smallImageURL
         self.thumbImage = item.thumbImageURL
         self.itemTitle = item.title
-        self.itemCategory = ""
+        self.itemCategory = "\(item.categoryID)"
         self.itemPrice = item.price
         self.isUrgent = item.isUrgent
         self.itemDescription = item.description

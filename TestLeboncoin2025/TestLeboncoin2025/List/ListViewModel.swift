@@ -11,18 +11,21 @@ import Foundation
     // Delegate vers le Coordinator associée à la vue
     weak var coordinator: ListViewControllerDelegate?
     
-    // Data binding: liaison entre la vue et la vue modèle: avec Swift 6 et une classe non isolée, la fonction doit être Sendable et dans le MainActor
+    // Data binding: liaison entre la vue et la vue modèle: avec Swift 6 et dans un contexte non isolé (nonisolated), la fonction doit être Sendable et dans le MainActor
     var onDataUpdated: (@Sendable @MainActor () -> Void)?
     var isLoadingData: (@Sendable @MainActor (_ loading: Bool) -> Void)?
     
     // Use cases
     private let itemCategoryFetchUseCase: ItemCategoryFetchUseCaseProtocol
     private let itemListFetchUseCase: ItemListFetchUseCaseProtocol
+    private let loadSavedSelectedSourceUseCase: LoadSavedSelectedCategoryUseCaseProtocol
     
-    // La liste des articles
+    // La liste des articles et des catégories. ATTENTION: l'usage de nonisolated(unsafe) est utilisé pour les variables qui peuvent être modifiées dans le temps dans un contexte asynchrone (en dehors du @MainActor), mais surtout à n'utiliser que depuis une seule tâche et donc une seule instance. Autrement, un crash de l'appli peut se déclencher si plusieurs tâches concurrentes sont sur ces variables, d'où le data race.
     nonisolated(unsafe) private var itemsViewModels: [ItemViewModel] = []
     nonisolated(unsafe) private var filteredItemsViewModels: [ItemViewModel] = []
     nonisolated(unsafe) private var itemCategoriesViewModels: [ItemCategoryViewModel] = []
+    
+    private var selectedSourceId = 0
     
     // La tâche de recherche
     private var searchTask: Task<Void, Never>?
@@ -36,9 +39,11 @@ import Foundation
     }
     
     // C'est ici qu'on injecte les dépendances des couches métiers et données de la Clean Architecture
-    init(itemCategoryFetchUseCase: ItemCategoryFetchUseCaseProtocol, itemListFetchUseCase: ItemListFetchUseCaseProtocol) {
+    init(itemCategoryFetchUseCase: ItemCategoryFetchUseCaseProtocol, itemListFetchUseCase: ItemListFetchUseCaseProtocol, loadSavedSelectedSourceUseCase: LoadSavedSelectedCategoryUseCaseProtocol) {
         self.itemCategoryFetchUseCase = itemCategoryFetchUseCase
         self.itemListFetchUseCase = itemListFetchUseCase
+        self.loadSavedSelectedSourceUseCase = loadSavedSelectedSourceUseCase
+        
         // L'écoute du flux asynchrone de recherche est initialisé
         observeSearchQuery()
         print("ListViewModel initialisé.")
@@ -54,7 +59,7 @@ import Foundation
     nonisolated func fetchItemList() {
         print("Thread avant entrée dans le Task: ", Thread.currentThread)
         
-        // On est toujours dans le MainActor
+        // Task.detached permet de sortir du main thread et de passer en background thread (tâche de fond)
         Task.detached { [weak self] in
             guard let self else { return }
             
@@ -62,12 +67,25 @@ import Foundation
             print("Main Thread: \(Thread.isOnMainThread)")
             await self.isLoadingData?(true)
             
-            await self.fetchItems()
+            // Les catégories en premier puis la liste d'annonces
             await self.fetchItemCategories()
+            await self.fetchItems()
             
             await self.isLoadingData?(false)
             print("Thread dans le Task après màj: ", Thread.currentThread)
             await self.onDataUpdated?()
+        }
+    }
+    
+    nonisolated func loadSelectedItemCategory() {
+        Task.detached { [weak self] in
+            do {
+                let itemCategory = try await self?.loadSavedSelectedSourceUseCase.execute()
+                print("Catégorie chargée: \(itemCategory?.name ?? "Inconnue")")
+                await self?.filterItemsByCategory(with: itemCategory?.id ?? 0)
+            } catch APIError.errorMessage(let message) {
+                print(message)
+            }
         }
     }
     
@@ -104,7 +122,6 @@ import Foundation
     }
     
     private func filterItems() async {
-        print("Filter items...")
         if searchQuery.isEmpty {
             filteredItemsViewModels = itemsViewModels
         } else {
@@ -119,11 +136,31 @@ import Foundation
         }
     }
     
+    private func filterItemsByCategory(with itemCategoryId: Int) async {
+        if itemCategoryId == 0 {
+            filteredItemsViewModels = itemsViewModels
+        } else {
+            filteredItemsViewModels = itemsViewModels.filter { viewModel in
+                guard let id = Int(viewModel.itemCategory) else {
+                    return false
+                }
+                
+                return id == itemCategoryId
+            }
+        }
+        
+        await MainActor.run { [weak self] in
+            self?.onDataUpdated?()
+        }
+    }
+    
     nonisolated private func fetchItemCategories() async {
         print("Thread fetchItemCategories: \(Thread.currentThread)")
         
         do {
-            itemCategoriesViewModels = try await itemCategoryFetchUseCase.execute()
+            // On va ajouter en plus des catégories téléchargées, une catégorie générique qui n'aura aucun filtre
+            itemCategoriesViewModels.append(ItemCategoryViewModel(id: 0, name: "Toutes catégories"))
+            itemCategoriesViewModels += try await itemCategoryFetchUseCase.execute()
         } catch APIError.errorMessage(let errorMessage) {
             await sendErrorMessage(with: errorMessage)
         } catch {
@@ -177,6 +214,6 @@ extension ListViewModel {
     }
     
     func goToFilterView() {
-        coordinator?.goToFilterView()
+        coordinator?.goToFilterView(with: itemCategoriesViewModels)
     }
 }

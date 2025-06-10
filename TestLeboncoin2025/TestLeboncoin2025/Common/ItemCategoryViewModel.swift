@@ -8,6 +8,7 @@
 struct ItemCategoryViewModel: Sendable {
     let id: Int
     let name: String
+    private(set) var isSaved: Bool = false
     
     init(id: Int, name: String) {
         self.id = id
@@ -18,10 +19,24 @@ struct ItemCategoryViewModel: Sendable {
         self.id = itemCategory.id
         self.name = itemCategory.name
     }
+    
+    func getDTO() -> ItemCategoryDTO {
+        return ItemCategoryDTO(with: self)
+    }
 }
 
 extension ItemCategoryViewModel {
     static func getFakeItemCategory() -> ItemCategoryViewModel {
         return ItemCategoryViewModel(id: 1, name: "Alimentaire")
+    }
+    
+    static func getFakeItemCategories() -> [ItemCategoryViewModel] {
+        return [
+            ItemCategoryViewModel(id: 1, name: "Alimentaire"),
+            ItemCategoryViewModel(id: 2, name: "Informatique"),
+            ItemCategoryViewModel(id: 3, name: "Automobile"),
+            ItemCategoryViewModel(id: 4, name: "Immobilier"),
+            ItemCategoryViewModel(id: 5, name: "Outils")
+        ]
     }
 }
