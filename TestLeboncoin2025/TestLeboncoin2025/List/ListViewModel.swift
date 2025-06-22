@@ -69,6 +69,7 @@ import Foundation
             
             // Les catégories en premier puis la liste d'annonces
             await self.fetchItemCategories()
+            print("-> \(self.itemCategoriesViewModels)")
             await self.fetchItems()
             
             await self.isLoadingData?(false)
@@ -82,7 +83,7 @@ import Foundation
             do {
                 let itemCategory = try await self?.loadSavedSelectedSourceUseCase.execute()
                 print("Catégorie chargée: \(itemCategory?.name ?? "Inconnue")")
-                await self?.filterItemsByCategory(with: itemCategory?.id ?? 0)
+                await self?.filterItemsByCategory(with: itemCategory?.name ?? "Toutes catégories")
             } catch APIError.errorMessage(let message) {
                 print(message)
             }
@@ -136,16 +137,14 @@ import Foundation
         }
     }
     
-    private func filterItemsByCategory(with itemCategoryId: Int) async {
-        if itemCategoryId == 0 {
+    private func filterItemsByCategory(with itemCategoryName: String) async {
+        if itemCategoryName == "Toutes catégories" {
             filteredItemsViewModels = itemsViewModels
         } else {
             filteredItemsViewModels = itemsViewModels.filter { viewModel in
-                guard let id = Int(viewModel.itemCategory) else {
-                    return false
-                }
+                // Attention à un bug: Si un filtrage par recherche est déjà actif, il faut le prendre en compte.
                 
-                return id == itemCategoryId
+                return viewModel.itemCategory == itemCategoryName
             }
         }
         
@@ -171,7 +170,7 @@ import Foundation
     nonisolated private func fetchItems() async {
         print("Thread fetchItems: \(Thread.currentThread)")
         do {
-            itemsViewModels = try await itemListFetchUseCase.execute()
+            await parseViewModels(with: try await itemListFetchUseCase.execute())
         } catch APIError.errorMessage(let errorMessage) {
             await sendErrorMessage(with: errorMessage)
         } catch {
@@ -181,8 +180,25 @@ import Foundation
         filteredItemsViewModels = itemsViewModels
     }
     
-    private func parseViewModels() async {
+    private func parseViewModels(with itemsViewModels: [ItemViewModel]) async {
         // itemsViewModels = articleViewModels.map { $0.getNewsCellViewModel() }
+        self.itemsViewModels = itemsViewModels.map { item in
+            let categoryId = self.itemCategoriesViewModels.firstIndex { category in
+                guard let id = Int(item.itemCategory) else {
+                    return false
+                }
+                
+                return id == category.id
+            }
+            
+            var category = "Inconnu"
+            
+            if let categoryId {
+                category = self.itemCategoriesViewModels[categoryId].name
+            }
+            
+            return ItemViewModel(smallImage: item.smallImage, thumbImage: item.thumbImage, itemTitle: item.itemTitle, itemCategory: category, itemPrice: item.itemPrice, isUrgent: item.isUrgent, itemDescription: item.itemDescription, itemAddedDate: item.itemAddedDate, siret: item.siret)
+        }
     }
     
     // MARK: - Logique CollectionView

@@ -164,9 +164,9 @@ final class ItemCollectionViewCell: UICollectionViewCell {
         
         if let url = URL(string: viewModel.smallImage) {
             // Téléchargement asynchrone de l'image
-            itemImage.loadImage(from: url, placeholder: "noImage")
+            itemImage.loadImage(from: url, placeholder: "leboncoinPlaceholderSmall")
         } else {
-            itemImage.image = UIImage(named: "noImage")
+            itemImage.image = UIImage(resource: .leboncoinPlaceholderSmall)
         }
         
         // Pour l'accessibilité et le support de VoiceOver

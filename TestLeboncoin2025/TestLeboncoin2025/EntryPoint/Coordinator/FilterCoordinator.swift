@@ -51,7 +51,6 @@ extension FilterCoordinator: FilterViewControllerDelegate {
     func backToHomeView() {
         // Removing child coordinator reference
         parentCoordinator?.removeChildCoordinator(childCoordinator: self)
-        navigationController.popViewController(animated: true)
         print(navigationController.viewControllers)
 
     }

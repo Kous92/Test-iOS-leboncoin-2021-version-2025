@@ -46,7 +46,7 @@ import UIKit
 
     func loadImage(from url: URL, placeholder: String) {
         imageLoadTask?.cancel()
-        self.image = UIImage(named: placeholder)
+        // self.image = UIImage(named: placeholder)
         
         // Si l'image est déjà en cache, inutile de solliciter le réseau.
         if let cachedImage = Self.imageCache.object(forKey: url as NSURL) {
@@ -75,6 +75,7 @@ import UIKit
             } catch {
                 if !Task.isCancelled {
                     print("❌ Image loading error: \(error.localizedDescription)")
+                    self.image = UIImage(named: placeholder)
                 }
             }
 

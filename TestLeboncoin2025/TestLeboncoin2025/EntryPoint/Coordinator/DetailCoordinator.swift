@@ -8,7 +8,7 @@
 import UIKit
 // Ensure that the 4th and 5th SOLID principles are respected: Interface Segregation and Dependency Inversion
 @MainActor protocol DetailViewControllerDelegate: AnyObject {
-    func backToPreviousScreen()
+    func backToHomeView()
 }
 
 @MainActor final class DetailCoordinator: ParentCoordinator {
@@ -45,9 +45,10 @@ import UIKit
 }
 
 extension DetailCoordinator: DetailViewControllerDelegate {
-    func backToPreviousScreen() {
+    func backToHomeView() {
         // Removing child coordinator reference
         parentCoordinator?.removeChildCoordinator(childCoordinator: self)
         print(navigationController.viewControllers)
+
     }
 }
