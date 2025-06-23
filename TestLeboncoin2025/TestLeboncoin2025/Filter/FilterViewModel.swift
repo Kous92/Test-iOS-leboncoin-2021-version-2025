@@ -39,7 +39,10 @@ import Foundation
                 print(result)
                 await self?.setSelectedCategory(with: result.id)
             } catch APIError.errorMessage(let message) {
-                print(message)
+                guard message != "nothingSaved" else {
+                    return
+                }
+                
                 await self?.sendErrorMessage(with: message)
             }
         }
@@ -57,6 +60,10 @@ import Foundation
             do {
                 try await self?.saveSelectedCategoriesUseCase.execute(with: itemCategoryViewModel.getDTO())
                 await self?.setSelectedCategory(with: itemCategoryViewModel.id)
+                
+                await MainActor.run { [weak self] in
+                    self?.coordinator?.notifyCategoryUpdate()
+                }
             } catch APIError.errorMessage(let message) {
                 print(message)
             }

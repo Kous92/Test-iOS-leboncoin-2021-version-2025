@@ -32,14 +32,13 @@ final class UserDefaultsLocalSettings: LocalSettings {
                 let decoder = JSONDecoder()
                 let itemCategory = try decoder.decode(ItemCategory.self, from: data)
                 
-                // Done, notify that loading has succeeded
                 return itemCategory
             } catch {
-                print("[SuperNewsUserDefaultsLocalSettings] ERROR: Unable to decode the loaded source (\(error))")
+                print("[UserDefaultsLocalSettings] Une erreur est survenue lors du décodage de la catégorie à charger. (\(error))")
                 throw APIError.errorMessage("")
             }
         }
         
-        throw APIError.errorMessage("Aucune catégorie n'a été sauvegardée.")
+        throw APIError.errorMessage("nothingSaved")
     }
 }

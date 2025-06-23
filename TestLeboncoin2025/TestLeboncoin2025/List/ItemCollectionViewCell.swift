@@ -30,7 +30,7 @@ final class ItemCollectionViewCell: UICollectionViewCell {
         label.textColor = .label
         label.minimumScaleFactor = 0.5
         label.font = UIFontMetrics(forTextStyle: .body).scaledFont(
-            for: UIFont.systemFont(ofSize: 14, weight: .semibold)
+            for: UIFont.systemFont(ofSize: Constants.ItemCell.title, weight: .semibold)
         )
         label.adjustsFontForContentSizeCategory = true
         
@@ -43,7 +43,7 @@ final class ItemCollectionViewCell: UICollectionViewCell {
         label.textColor = .label
         label.minimumScaleFactor = 0.5
         label.font = UIFontMetrics(forTextStyle: .body).scaledFont(
-            for: UIFont.systemFont(ofSize: 11, weight: .medium)
+            for: UIFont.systemFont(ofSize: Constants.ItemCell.category, weight: .medium)
         )
         label.adjustsFontForContentSizeCategory = true
         
@@ -56,7 +56,7 @@ final class ItemCollectionViewCell: UICollectionViewCell {
         label.textColor = .label
         label.minimumScaleFactor = 0.5
         label.font = UIFontMetrics(forTextStyle: .body).scaledFont(
-            for: UIFont.systemFont(ofSize: 14, weight: .semibold)
+            for: UIFont.systemFont(ofSize: Constants.ItemCell.title, weight: .semibold)
         )
         label.adjustsFontForContentSizeCategory = true
         
@@ -70,12 +70,12 @@ final class ItemCollectionViewCell: UICollectionViewCell {
         label.textAlignment = .center
         label.minimumScaleFactor = 0.5
         label.font = UIFontMetrics(forTextStyle: .body).scaledFont(
-            for: UIFont.systemFont(ofSize: 12, weight: .semibold)
+            for: UIFont.systemFont(ofSize: Constants.ItemCell.specialLabel, weight: .semibold)
         )
         label.adjustsFontForContentSizeCategory = true
         label.backgroundColor = .orange
         label.layer.masksToBounds = true
-        label.layer.cornerRadius = 6
+        label.layer.cornerRadius = Constants.ItemCell.urgentRadius
         
         return label
     }()
@@ -142,10 +142,10 @@ final class ItemCollectionViewCell: UICollectionViewCell {
         
         // Contraintes urgence item (dans l'image)
         if contentView.subviews.contains(itemUrgentLabel) {
-            constraints.append(itemUrgentLabel.topAnchor.constraint(equalTo: itemCategoryLabel.bottomAnchor, constant: 5))
+            constraints.append(itemUrgentLabel.topAnchor.constraint(equalTo: itemCategoryLabel.bottomAnchor, constant: Constants.ItemCell.urgentVertical))
             constraints.append(itemUrgentLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor))
             constraints.append(itemUrgentLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor))
-            constraints.append(itemUrgentLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -8))
+            constraints.append(itemUrgentLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -Constants.ItemCell.urgentVertical))
         }
         
         // Application des contraintes définies

@@ -15,7 +15,6 @@ final class FilterViewController: UIViewController {
         let table = UITableView()
         table.translatesAutoresizingMaskIntoConstraints = false
         table.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
-        // table.separatorStyle = .none
         table.accessibilityIdentifier = "filterTableView" // Pour les tests UI
         table.delegate = self
         table.dataSource = self
@@ -32,9 +31,9 @@ final class FilterViewController: UIViewController {
         viewModel?.loadSetting()
     }
     
-    // WARNING: This function is triggered when the screen is destroyed and when a screen will go above this one.
+    // ATTENTION: Cette fonction se déclenche lorsque l'écran est détruit et lorsqu'un écran va au-dessus de celui-ci.
     override func viewWillDisappear(_ animated: Bool) {
-        // We make sure to avoid any memory leak by destroying correctly the coordinator instance. Popping ViewController is already done with NavigationController, no need to add extra instruction.
+        // On s'assure d'éviter toute fuite mémoire (memory leak) en détruisant correctement l'instance du coordinator. Le dépilage du ViewController est déjà géré par le NavigationController, inutile d'ajouter des instructions supplémentaires.
         if isMovingFromParent {
             viewModel?.backToPreviousScreen()
         }
@@ -56,7 +55,6 @@ final class FilterViewController: UIViewController {
     // Attention à être explicite en mettant bien @MainActor en premier dans la closure.
     private func setBindings() {
         viewModel?.onDataUpdated = { @MainActor [weak self] in
-            print("Liste des catégories à jour")
             self?.categoryTableView.reloadData()
         }
     }
@@ -66,7 +64,6 @@ extension FilterViewController {
     private func setNavigationBar() {
         navigationItem.title = "Catégories"
         navigationController?.navigationBar.tintColor = .label
-        navigationItem.backButtonTitle = "Retour"
         
         // For UI testing
         navigationItem.rightBarButtonItem?.accessibilityIdentifier = "listButton"
@@ -88,9 +85,8 @@ extension FilterViewController: UITableViewDataSource {
         cell.textLabel?.text = itemViewModel.name
         cell.tintColor = .systemGreen
         
-        print("\(indexPath.row) : \(currentSelectedIndex)")
+        // print("\(indexPath.row) : \(currentSelectedIndex)")
         if indexPath.row == currentSelectedIndex {
-            print("check")
             cell.accessoryType = .checkmark
         } else {
             // En cas de bug, utile pour forcer la cohérence
@@ -109,7 +105,6 @@ extension FilterViewController: UITableViewDelegate {
         // L'utilisateur a-t-il tapé sur un cellule déjà sélectionnée ? Si c'est le cas, ne rien faire.
         let selected = indexPath.row
         let currentSelectedIndex = viewModel?.getCurrentSelectedIndex() ?? 0
-        print(currentSelectedIndex)
         
         // L'utilisateur a-t-il tapé sur un élément sélectionné. Si c'est le cas, ne rien faire
         if selected == currentSelectedIndex {
@@ -128,7 +123,6 @@ extension FilterViewController: UITableViewDelegate {
         
         // On sauvegarde la catégorie sélectionnée
         viewModel?.saveSelectedCategory(at: indexPath)
-        print(viewModel?.getCurrentSelectedIndex() ?? -1)
     }
 }
 

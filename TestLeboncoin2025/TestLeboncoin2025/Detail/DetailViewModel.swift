@@ -12,9 +12,6 @@ final class DetailViewModel {
     
     private let itemViewModel: ItemViewModel
     
-    // Data binding: liaison entre la vue et la vue modèle: avec Swift 6 et dans un contexte non isolé (nonisolated), la fonction doit être Sendable et dans le MainActor
-    var onDataUpdated: (@Sendable @MainActor () -> Void)?
-    
     init(with itemViewModel: ItemViewModel) {
         self.itemViewModel = itemViewModel
     }

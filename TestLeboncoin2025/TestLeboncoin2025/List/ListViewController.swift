@@ -43,7 +43,7 @@ final class ListViewController: UIViewController {
         let spinner = UIActivityIndicatorView()
         spinner.translatesAutoresizingMaskIntoConstraints = false
         spinner.style = .medium
-        spinner.transform = CGAffineTransform(scaleX: 2, y: 2)
+        spinner.transform = CGAffineTransform(scaleX: Constants.List.spinnerScale, y: Constants.List.spinnerScale)
         spinner.hidesWhenStopped = true
         
         return spinner
@@ -59,10 +59,6 @@ final class ListViewController: UIViewController {
         setNavigationBar()
         
         viewModel?.fetchItemList()
-    }
-    
-    override func viewWillAppear(_ animated: Bool) {
-        viewModel?.loadSelectedItemCategory()
     }
     
     private func buildViewHierarchy() {
@@ -157,7 +153,7 @@ extension ListViewController: UICollectionViewDelegateFlowLayout {
             // Gestion des colonnes si c'est sur iPad ou iPhone
             let iPad = environment.traitCollection.userInterfaceIdiom == .pad
             let columns = iPad ? 4 : 2
-            let spacing: CGFloat = 8
+            let spacing: CGFloat = Constants.List.spacing
             let fractionalWidth = 1.0 / CGFloat(columns)
             
             // Taille de l'item = 100% du "groupe vertical"
@@ -175,7 +171,7 @@ extension ListViewController: UICollectionViewDelegateFlowLayout {
             
             // Section
             let section = NSCollectionLayoutSection(group: horizontalGroup)
-            section.contentInsets = NSDirectionalEdgeInsets(top: 16, leading: 16, bottom: 16, trailing: 16)
+            section.contentInsets = NSDirectionalEdgeInsets(top: Constants.List.insets, leading: Constants.List.insets, bottom: Constants.List.insets, trailing: Constants.List.insets)
             section.interGroupSpacing = spacing
             
             return section

@@ -10,6 +10,7 @@ import UIKit
 
 // Ensure that the 4th and 5th SOLID principles are respected: Interface Segregation and Dependency Inversion
 @MainActor protocol FilterViewControllerDelegate: AnyObject {
+    func notifyCategoryUpdate()
     func displayErrorAlert(with errorMessage: String)
     func backToHomeView()
 }
@@ -53,6 +54,13 @@ extension FilterCoordinator: FilterViewControllerDelegate {
         parentCoordinator?.removeChildCoordinator(childCoordinator: self)
         print(navigationController.viewControllers)
 
+    }
+    
+    func notifyCategoryUpdate() {
+        if let listCoordinator = parentCoordinator as? ListCoordinator {
+            print("Filter: Une mise à jour de catégorie aura lieu.")
+            listCoordinator.notifyCategoryUpdate()
+        }
     }
     
     func displayErrorAlert(with errorMessage: String) {

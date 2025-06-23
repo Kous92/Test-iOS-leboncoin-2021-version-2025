@@ -13,6 +13,7 @@ import UIKit
     func goToDetailView(with itemViewModel: ItemViewModel)
     func goToFilterView(with itemCategoriesViewModels: [ItemCategoryViewModel])
     func displayErrorAlert(with errorMessage: String)
+    func notifyCategoryUpdate()
 }
 
 @MainActor final class ListCoordinator: ParentCoordinator {
@@ -87,5 +88,11 @@ extension ListCoordinator: ListViewControllerDelegate {
         }))
         
         navigationController.present(alert, animated: true, completion: nil)
+    }
+    
+    func notifyCategoryUpdate() {
+        if let listViewController = navigationController.viewControllers.first as? ListViewController {
+            listViewController.viewModel?.updateCategoryFilter()
+        }
     }
 }

@@ -30,29 +30,29 @@ actor FileCache<T: Codable>: NSCacheType {
     
     func saveToDisk() {
         let entries = keysTracker.keys.compactMap(entry)
-        print("[FileCache] Saving data to cache: \(entries.count) entries.")
+        print("[FileCache] Sauvegarde en cache de \(entries.count) entrées.")
         
         do {
             let data = try JSONEncoder().encode(entries)
             try data.write(to: saveLocationURL)
         } catch {
-            print("[FileCache] Saving failed, an error has occurred: \(error.localizedDescription)")
+            print("[FileCache] Échec de la sauvegarde, une erreur est survenue: \(error.localizedDescription)")
             return
         }
         
-        print("[FileCache] Saving succeded.")
+        print("[FileCache] Sauvegarde réussie.")
     }
     
     func loadFromDisk() {
-        print("[FileCache] Loading cached data from disk \(fileName)...")
+        print("[FileCache] Chargement des données du fichier cache \(fileName)...")
         
         do {
             let data = try Data(contentsOf: saveLocationURL)
             let entries = try JSONDecoder().decode([CacheEntry<T>].self, from: data)
             entries.forEach { insert($0) }
-            print("[FileCache] Loaded successfully. \(entries.count > 0 ? String(entries.count) : "No") entries available in cache")
+            print("[FileCache] Chargement réussi. \(entries.count > 0 ? String(entries.count) : "No") entrée disponible en cache.")
         } catch {
-            print("[FileCache] Loading failed, an error has occurred: \(error.localizedDescription)")
+            print("[FileCache] Échec du chargement, une erreur est survenue: \(error.localizedDescription)")
             return
         }
     }

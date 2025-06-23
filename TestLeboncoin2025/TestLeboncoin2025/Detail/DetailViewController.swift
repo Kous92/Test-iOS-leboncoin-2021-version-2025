@@ -26,14 +26,15 @@ final class DetailViewController: UIViewController {
         label.textAlignment = .center
         label.minimumScaleFactor = 0.5
         label.font = UIFontMetrics(forTextStyle: .body).scaledFont(
-            for: UIFont.systemFont(ofSize: 12, weight: .semibold)
+            for: UIFont.systemFont(ofSize: Constants.Detail.specialLabel, weight: .semibold)
         )
         label.adjustsFontForContentSizeCategory = true
         label.backgroundColor = .systemOrange
         label.layer.masksToBounds = true
-        label.layer.cornerRadius = 15
+        label.layer.cornerRadius = Constants.Detail.urgentRadius
         label.paddingBottom = 7
         label.paddingTop = 7
+        label.accessibilityIdentifier = "urgentLabel"
         
         return label
     }()
@@ -67,9 +68,10 @@ final class DetailViewController: UIViewController {
         let label = UILabel()
         label.numberOfLines = 0
         label.font = UIFontMetrics(forTextStyle: .body).scaledFont(
-            for: UIFont.systemFont(ofSize: 18, weight: .semibold)
+            for: UIFont.systemFont(ofSize: Constants.Detail.itemTitle, weight: .semibold)
         )
         label.textColor = .label
+        label.minimumScaleFactor = 0.5
         label.adjustsFontForContentSizeCategory = true
         label.translatesAutoresizingMaskIntoConstraints = false
         label.accessibilityIdentifier = "productTitle" // Pour les tests UI
@@ -79,11 +81,12 @@ final class DetailViewController: UIViewController {
     private lazy var productPriceLabel: UILabel = {
         let label = UILabel()
         label.font = UIFontMetrics(forTextStyle: .body).scaledFont(
-            for: UIFont.systemFont(ofSize: 16, weight: .semibold)
+            for: UIFont.systemFont(ofSize: Constants.Detail.price, weight: .semibold)
         )
         label.numberOfLines = 1
         label.sizeToFit()
         label.textColor = .green
+        label.minimumScaleFactor = 0.5
         label.adjustsFontForContentSizeCategory = true
         label.translatesAutoresizingMaskIntoConstraints = false
         label.accessibilityIdentifier = "productPrice" // Pour les tests UI
@@ -93,10 +96,11 @@ final class DetailViewController: UIViewController {
     private lazy var postedDateLabel: UILabel = {
         let label = UILabel()
         label.font = UIFontMetrics(forTextStyle: .body).scaledFont(
-            for: UIFont.systemFont(ofSize: 12, weight: .semibold)
+            for: UIFont.systemFont(ofSize: Constants.Detail.contentLabel, weight: .semibold)
         )
         label.numberOfLines = 0
         label.textColor = .label
+        label.minimumScaleFactor = 0.5
         label.adjustsFontForContentSizeCategory = true
         label.translatesAutoresizingMaskIntoConstraints = false
         label.accessibilityIdentifier = "productDate" // Pour les tests UI
@@ -107,22 +111,25 @@ final class DetailViewController: UIViewController {
         let label = UILabel()
         label.text = "Description"
         label.font = UIFontMetrics(forTextStyle: .body).scaledFont(
-            for: UIFont.systemFont(ofSize: 17, weight: .semibold)
+            for: UIFont.systemFont(ofSize: Constants.Detail.titleLabel, weight: .semibold)
         )
         label.numberOfLines = 0
         label.textColor = .label
+        label.minimumScaleFactor = 0.5
         label.adjustsFontForContentSizeCategory = true
         label.translatesAutoresizingMaskIntoConstraints = false
+        label.accessibilityIdentifier = "productDescriptionTitleLabel"
         return label
     }()
     
     private lazy var productDescriptionLabel: UILabel = {
         let label = UILabel()
         label.font = UIFontMetrics(forTextStyle: .body).scaledFont(
-            for: UIFont.systemFont(ofSize: 12, weight: .medium)
+            for: UIFont.systemFont(ofSize: Constants.Detail.contentLabel, weight: .medium)
         )
         label.numberOfLines = 0
         label.textColor = .label
+        label.minimumScaleFactor = 0.5
         label.adjustsFontForContentSizeCategory = true
         label.translatesAutoresizingMaskIntoConstraints = false
         label.accessibilityIdentifier = "productDescription" // Pour les tests UI
@@ -133,26 +140,29 @@ final class DetailViewController: UIViewController {
         let label = PaddingLabel()
         label.text = "PRO"
         label.font = UIFontMetrics(forTextStyle: .body).scaledFont(
-            for: UIFont.systemFont(ofSize: 12, weight: .semibold)
+            for: UIFont.systemFont(ofSize: Constants.Detail.specialLabel, weight: .semibold)
         )
         label.textColor = .white
         label.backgroundColor = .blue
+        label.minimumScaleFactor = 0.5
         label.adjustsFontForContentSizeCategory = true
         label.textAlignment = .center
         label.layer.masksToBounds = true
-        label.layer.cornerRadius = 10
+        label.layer.cornerRadius = Constants.Detail.proRadius
         label.translatesAutoresizingMaskIntoConstraints = false
+        label.accessibilityIdentifier = "professionalSellerTitleLabel"
         return label
     }()
     
     private lazy var professionalSellerLabel: UILabel = {
         let label = UILabel()
         label.font = UIFontMetrics(forTextStyle: .body).scaledFont(
-            for: UIFont.systemFont(ofSize: 12, weight: .medium)
+            for: UIFont.systemFont(ofSize: Constants.Detail.contentLabel, weight: .medium)
         )
         label.numberOfLines = 0
         label.textColor = .label
         label.translatesAutoresizingMaskIntoConstraints = false
+        label.minimumScaleFactor = 0.5
         label.adjustsFontForContentSizeCategory = true
         label.accessibilityIdentifier = "productPro" // Pour les tests UI
         return label
@@ -189,9 +199,9 @@ final class DetailViewController: UIViewController {
         setData()
     }
     
-    // WARNING: This function is triggered when the screen is destroyed and when a screen will go above this one.
+    // ATTENTION: Cette fonction se déclenche lorsque l'écran est détruit et lorsqu'un écran va au-dessus de celui-ci.
     override func viewWillDisappear(_ animated: Bool) {
-        // We make sure to avoid any memory leak by destroying correctly the coordinator instance. Popping ViewController is already done with NavigationController, no need to add extra instruction.
+        // On s'assure d'éviter toute fuite mémoire (memory leak) en détruisant correctement l'instance du coordinator. Le dépilage du ViewController est déjà géré par le NavigationController, inutile d'ajouter des instructions supplémentaires.
         if isMovingFromParent {
             viewModel?.backToPreviousScreen()
         }
@@ -207,9 +217,7 @@ final class DetailViewController: UIViewController {
         itemContentView.addSubview(postedDateLabel)
         
         if let itemViewModel = viewModel, itemViewModel.isUrgentItem() {
-            //  itemContentView.addSubview(statusStackView)
             itemContentView.addSubview(isUrgentLabel)
-            // statusStackView.addArrangedSubview(isUrgentLabel)
         }
         
         contentView.addSubview(productDescriptionTitleLabel)
@@ -245,32 +253,32 @@ final class DetailViewController: UIViewController {
         ])
         
         NSLayoutConstraint.activate([
-            itemContentView.topAnchor.constraint(equalTo: productImage.bottomAnchor, constant: -60),
-            itemContentView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 10),
-            itemContentView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -10),
+            itemContentView.topAnchor.constraint(equalTo: productImage.bottomAnchor, constant: Constants.Detail.contentViewTopMargin),
+            itemContentView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: Constants.Detail.horizontalMargin),
+            itemContentView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -Constants.Detail.horizontalMargin),
         ])
         
         NSLayoutConstraint.activate([
-            productTitleLabel.topAnchor.constraint(equalTo: itemContentView.topAnchor, constant: 15),
-            productTitleLabel.leadingAnchor.constraint(equalTo: itemContentView.leadingAnchor, constant: 10),
-            productTitleLabel.trailingAnchor.constraint(equalTo: itemContentView.trailingAnchor, constant: -10)
+            productTitleLabel.topAnchor.constraint(equalTo: itemContentView.topAnchor, constant: Constants.Detail.contentViewVerticalMargin),
+            productTitleLabel.leadingAnchor.constraint(equalTo: itemContentView.leadingAnchor, constant: Constants.Detail.horizontalMargin),
+            productTitleLabel.trailingAnchor.constraint(equalTo: itemContentView.trailingAnchor, constant: -Constants.Detail.horizontalMargin)
         ])
         
         NSLayoutConstraint.activate([
             productPriceLabel.topAnchor.constraint(equalTo: productTitleLabel.bottomAnchor, constant: 10),
-            productPriceLabel.leadingAnchor.constraint(equalTo: itemContentView.leadingAnchor, constant: 10),
-            productPriceLabel.trailingAnchor.constraint(equalTo: itemContentView.trailingAnchor, constant: -10)
+            productPriceLabel.leadingAnchor.constraint(equalTo: itemContentView.leadingAnchor, constant: Constants.Detail.horizontalMargin),
+            productPriceLabel.trailingAnchor.constraint(equalTo: itemContentView.trailingAnchor, constant: -Constants.Detail.horizontalMargin)
         ])
         
         NSLayoutConstraint.activate([
             postedDateLabel.topAnchor.constraint(equalTo: productPriceLabel.bottomAnchor, constant: 15),
-            postedDateLabel.leadingAnchor.constraint(equalTo: itemContentView.leadingAnchor, constant: 10),
-            postedDateLabel.trailingAnchor.constraint(equalTo: itemContentView.trailingAnchor, constant: -10)
+            postedDateLabel.leadingAnchor.constraint(equalTo: itemContentView.leadingAnchor, constant: Constants.Detail.horizontalMargin),
+            postedDateLabel.trailingAnchor.constraint(equalTo: itemContentView.trailingAnchor, constant: -Constants.Detail.horizontalMargin)
         ])
         
         if let itemViewModel = viewModel, !itemViewModel.isUrgentItem() {
             NSLayoutConstraint.activate([
-                postedDateLabel.bottomAnchor.constraint(equalTo: itemContentView.bottomAnchor, constant: -15)
+                postedDateLabel.bottomAnchor.constraint(equalTo: itemContentView.bottomAnchor, constant: -Constants.Detail.contentViewVerticalMargin)
             ])
         }
         
@@ -279,22 +287,22 @@ final class DetailViewController: UIViewController {
             NSLayoutConstraint.activate([
                 isUrgentLabel.widthAnchor.constraint(equalTo: itemContentView.widthAnchor, multiplier: 0.4),
                 isUrgentLabel.topAnchor.constraint(equalTo: postedDateLabel.bottomAnchor, constant: 20),
-                isUrgentLabel.leadingAnchor.constraint(equalTo: itemContentView.leadingAnchor, constant: 10),
-                isUrgentLabel.trailingAnchor.constraint(equalTo: itemContentView.trailingAnchor, constant: -10),
-                isUrgentLabel.bottomAnchor.constraint(equalTo: itemContentView.bottomAnchor, constant: -15)
+                isUrgentLabel.leadingAnchor.constraint(equalTo: itemContentView.leadingAnchor, constant: Constants.Detail.horizontalMargin),
+                isUrgentLabel.trailingAnchor.constraint(equalTo: itemContentView.trailingAnchor, constant: -Constants.Detail.horizontalMargin),
+                isUrgentLabel.bottomAnchor.constraint(equalTo: itemContentView.bottomAnchor, constant: -Constants.Detail.contentViewVerticalMargin)
             ])
         }
         
         NSLayoutConstraint.activate([
             productDescriptionTitleLabel.topAnchor.constraint(equalTo: itemContentView.bottomAnchor, constant: 30),
-            productDescriptionTitleLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 10),
-            productDescriptionTitleLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -10)
+            productDescriptionTitleLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: Constants.Detail.horizontalMargin),
+            productDescriptionTitleLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -Constants.Detail.horizontalMargin)
         ])
         
         NSLayoutConstraint.activate([
-            productDescriptionLabel.topAnchor.constraint(equalTo: productDescriptionTitleLabel.bottomAnchor, constant: 10),
-            productDescriptionLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 10),
-            productDescriptionLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -10)
+            productDescriptionLabel.topAnchor.constraint(equalTo: productDescriptionTitleLabel.bottomAnchor, constant: Constants.Detail.horizontalMargin),
+            productDescriptionLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: Constants.Detail.horizontalMargin),
+            productDescriptionLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -Constants.Detail.horizontalMargin)
         ])
         
         if let itemViewModel = viewModel, !itemViewModel.isProfessionalSeller() {
@@ -307,8 +315,8 @@ final class DetailViewController: UIViewController {
             NSLayoutConstraint.activate([
                 professionalSellerTitleLabel.widthAnchor.constraint(equalTo: proStackView.widthAnchor, multiplier: 0.25),
                 proStackView.topAnchor.constraint(equalTo: productDescriptionLabel.bottomAnchor, constant: 30),
-                proStackView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 10),
-                proStackView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -10),
+                proStackView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: Constants.Detail.horizontalMargin),
+                proStackView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -Constants.Detail.horizontalMargin),
                 proStackView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -10)
             ])
         }

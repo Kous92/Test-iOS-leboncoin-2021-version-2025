@@ -25,7 +25,7 @@ import Foundation
     nonisolated(unsafe) private var filteredItemsViewModels: [ItemViewModel] = []
     nonisolated(unsafe) private var itemCategoriesViewModels: [ItemCategoryViewModel] = []
     
-    private var selectedSourceId = 0
+    private var activeCategory = "Toutes catégories"
     
     // La tâche de recherche
     private var searchTask: Task<Void, Never>?
@@ -55,6 +55,11 @@ import Foundation
         searchQueryContinuation?.finish()
     }
     
+    // Dès qu'il y a eu une sélection du filtre depuis FilterViewController, se déclenche via les delegates de FilterCoordinator et ListCoordinator. Le but étant de charger le nouveau filtre et l'appliquer dès que nécessaire pour éviter certains bugs et soucis de synchronisation.
+    nonisolated func updateCategoryFilter() {
+        loadSelectedItemCategory()
+    }
+    
     // Ici, on va récupérer depuis le réseau de façon synchronisée les catégories d'articles et les annonces
     nonisolated func fetchItemList() {
         print("Thread avant entrée dans le Task: ", Thread.currentThread)
@@ -72,9 +77,9 @@ import Foundation
             print("-> \(self.itemCategoriesViewModels)")
             await self.fetchItems()
             
-            await self.isLoadingData?(false)
+            // Pour éviter un bug, l'actualisation de la vue se déclenchera après chargement de la catégorie et du filtrage.
+            self.loadSelectedItemCategory()
             print("Thread dans le Task après màj: ", Thread.currentThread)
-            await self.onDataUpdated?()
         }
     }
     
@@ -82,16 +87,20 @@ import Foundation
         Task.detached { [weak self] in
             do {
                 let itemCategory = try await self?.loadSavedSelectedSourceUseCase.execute()
-                print("Catégorie chargée: \(itemCategory?.name ?? "Inconnue")")
+                
+                await MainActor.run { [weak self] in
+                    self?.activeCategory = itemCategory?.name ?? "Toutes catégories"
+                }
+                
                 await self?.filterItemsByCategory(with: itemCategory?.name ?? "Toutes catégories")
             } catch APIError.errorMessage(let message) {
-                print(message)
+                print("\(message). La catégorie par défaut sera appliquée.")
+                await self?.filterItemsByCategory(with: "Toutes catégories")
             }
         }
     }
     
     private func observeSearchQuery() {
-        print("Observe search...")
         let stream = AsyncStream<String> { continuation in
             self.searchQueryContinuation = continuation
         }
@@ -117,12 +126,12 @@ import Foundation
                 }
                 
                 // Filtrage de la liste de recherche
-                await filterItems()
+                await filterItemsWithSearch()
             }
         }
     }
     
-    private func filterItems() async {
+    private func filterItemsWithSearch() async {
         if searchQuery.isEmpty {
             filteredItemsViewModels = itemsViewModels
         } else {
@@ -132,7 +141,15 @@ import Foundation
             }
         }
         
+        // Il faut conserver le filtre de catégorie s'il est mis en application (excepté le générique)
+        if activeCategory != "Toutes catégories" {
+            filteredItemsViewModels = filteredItemsViewModels.filter { itemViewModel in
+                return itemViewModel.itemCategory == activeCategory
+            }
+        }
+        
         await MainActor.run { [weak self] in
+            self?.isLoadingData?(false)
             self?.onDataUpdated?()
         }
     }
@@ -143,12 +160,20 @@ import Foundation
         } else {
             filteredItemsViewModels = itemsViewModels.filter { viewModel in
                 // Attention à un bug: Si un filtrage par recherche est déjà actif, il faut le prendre en compte.
+                let matchingCategory = viewModel.itemCategory == itemCategoryName
                 
-                return viewModel.itemCategory == itemCategoryName
+                // print(">>> Filtrage de catégories avec recherche: \(!searchQuery.isEmpty)")
+                if !searchQuery.isEmpty {
+                    let title = viewModel.itemTitle.lowercased()
+                    return title.contains(searchQuery.lowercased()) && matchingCategory
+                }
+                
+                return matchingCategory
             }
         }
         
         await MainActor.run { [weak self] in
+            self?.isLoadingData?(false)
             self?.onDataUpdated?()
         }
     }
@@ -181,7 +206,6 @@ import Foundation
     }
     
     private func parseViewModels(with itemsViewModels: [ItemViewModel]) async {
-        // itemsViewModels = articleViewModels.map { $0.getNewsCellViewModel() }
         self.itemsViewModels = itemsViewModels.map { item in
             let categoryId = self.itemCategoriesViewModels.firstIndex { category in
                 guard let id = Int(item.itemCategory) else {
@@ -210,7 +234,7 @@ import Foundation
         // On vérifie bien qu'il y a au moins une cellule dans la liste après filtrage, sinon ça il y aura un crash
         let cellCount = filteredItemsViewModels.count
         
-        guard cellCount > 0, indexPath.item <= cellCount else {
+        guard cellCount > 0, indexPath.item < cellCount else {
             return nil
         }
         

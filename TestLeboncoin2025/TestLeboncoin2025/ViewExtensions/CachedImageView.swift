@@ -74,7 +74,7 @@ import UIKit
                 }
             } catch {
                 if !Task.isCancelled {
-                    print("❌ Image loading error: \(error.localizedDescription)")
+                    print("❌ Erreur de chargement de l'image: \(error.localizedDescription)")
                     self.image = UIImage(named: placeholder)
                 }
             }

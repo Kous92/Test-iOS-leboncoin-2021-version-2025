@@ -41,11 +41,7 @@ struct ItemViewModel: Sendable {
     }
 }
 
-extension ItemViewModel {
-    func getCellViewModel() -> CellViewModel {
-        return CellViewModel()
-    }
-    
+extension ItemViewModel {    
     /// Returns a fake object with all available fields. For unit tests and SwiftUI previews
     static func getFakeItem() -> ItemViewModel {
         return ItemViewModel(smallImage: "https://img-prd-pim.poorvika.com/prodvarval/Apple-iphone-16-pro-black-titanium-128gb-Front-Back-View-Thumbnail.png", thumbImage: "https://img-prd-pim.poorvika.com/prodvarval/Apple-iphone-16-pro-black-titanium-128gb-Front-Back-View-Thumbnail.png", itemTitle: "iPhone 16 Pro 512 GB noir batterie neuve", itemCategory: "Multimédia", itemPrice: 1200, isUrgent: true, itemDescription: "iPhone 16 Pro couleur noir, 512 GB, batterie neuve.", itemAddedDate: "2025-05-18T20:13:31+0000")
