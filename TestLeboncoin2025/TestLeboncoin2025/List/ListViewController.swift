@@ -91,6 +91,8 @@ final class ListViewController: UIViewController {
     private func setBindings() {
         viewModel?.onDataUpdated = { @MainActor [weak self] in
             print("Data update")
+            // Ne pas oublier de remettre la position du scroll en haut lors d'une mise à jour de la liste (avec filtrage surtout).
+            self?.itemCollectionView.setContentOffset(.zero, animated: false)
             self?.itemCollectionView.reloadData()
         }
         
