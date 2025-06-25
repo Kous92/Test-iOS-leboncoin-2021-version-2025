@@ -206,7 +206,7 @@ import Foundation
     }
     
     private func parseViewModels(with itemsViewModels: [ItemViewModel]) async {
-        self.itemsViewModels = itemsViewModels.map { item in
+        let parsedViewModels = itemsViewModels.map { item in
             let categoryId = self.itemCategoriesViewModels.firstIndex { category in
                 guard let id = Int(item.itemCategory) else {
                     return false
@@ -223,6 +223,18 @@ import Foundation
             
             return ItemViewModel(smallImage: item.smallImage, thumbImage: item.thumbImage, itemTitle: item.itemTitle, itemCategory: category, itemPrice: item.itemPrice, isUrgent: item.isUrgent, itemDescription: item.itemDescription, itemAddedDate: item.itemAddedDate, siret: item.siret)
         }
+        
+        // ✅ Tri : urgents en premier, puis triés par date décroissante
+        self.itemsViewModels = parsedViewModels.sorted(by: { lhs, rhs in
+            if lhs.isUrgent != rhs.isUrgent {
+                return lhs.isUrgent && !rhs.isUrgent // urgents d'abord
+            }
+            
+            // Comparer les dates en ISO8601 ou format parsable
+            let lhsDate = ISO8601DateFormatter().date(from: lhs.itemAddedDate) ?? .distantPast
+            let rhsDate = ISO8601DateFormatter().date(from: rhs.itemAddedDate) ?? .distantPast
+            return lhsDate > rhsDate
+        })
     }
     
     // MARK: - Logique CollectionView
