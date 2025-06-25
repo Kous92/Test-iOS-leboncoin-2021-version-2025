@@ -55,10 +55,26 @@ Pour cette version, c'est différent, étant donné que c'est non officiel. Mais
 
 ## <a name="solution"></a>Ma solution
 
-Au niveau architecture modulaire, s'il faut respecter le principe de responsabilité unique (Single Responsibility), il est clair que **l'architecture la plus simple (et celle par défaut de UIKit) étant MVC est à bannir. L'architecture MVP est également à bannir dans ce cas de figure.**. 
+Au niveau architecture modulaire, s'il faut respecter le principe de responsabilité unique (Single Responsibility), il est clair que **l'architecture la plus simple (et celle par défaut de UIKit) étant MVC est à bannir. L'architecture MVP est également à bannir dans ce cas de figure.**. Dans ce cas, la base architecturale que je propose est le **MVVM-C** (**MVVM + Coordinator**). Pour respecter au mieux les principes du SOLID, cette base **MVVM-C** est imbriquée dans une **Clean Architecture** avec:
+- L'utilisation du design pattern `Repository` pour faire le lien entre les couches de données (**Data layer**) et de domaine (**Domain layer**).
+- L'utilisation des **Use Case** pour le lien entre la couche présentation et domaine.
+- L'utilisation des `DTO` (**Data Transfer Object**) pour la transition des données entre la présentation avec des `ViewModel` dédiés pour les vues et les entités, des objets `Decodable` utilisés par la couche Data que ce soit pour la partie réseau, lecture/écriture du cache ou encore lecture/écriture `UserDefaults`.
+- Le `Coordinator` pour la gestion du flux de navigation, par le biais du design pattern `delegate` étant en relation avec le `ViewModel` du module.
+- L'utilisation du design pattern `Builder` pour la gestion des injections de dépendances des couches du module concerné. Ici, en instanciant d'abord les éléments de la couche `Data`, suivi du `Repository`, et de la couche `Domain` avec le `Use Case` pour ensuite les injecter dans le `ViewModel` et par la suite dans le `ViewController`. Le builder injecte aussi la référence avec le `Coordinator` du module en question.
 
-La solution utilise **UIKit**. L'ensemble des éléments visuels sont 100% full code, étant donné qu'il est **strictement interdit** dans ce test d'utiliser **SwiftUI**, les **XIB** ou les **Storyboard**.
+La solution utilise **UIKit**. L'ensemble des éléments visuels sont 100% full code, étant donné qu'il est **strictement interdit** dans ce test d'utiliser **SwiftUI**, les **XIB** ou les **Storyboard**. L'accessibilité est partiellement supportée avec le `Dynamic Type` pour les textes et partiellement le support de `VoiceOver`.
+
+Également, le support de Swift 6 (mode Swift 6.1 étant donné que les classes sont `nonisolated` par défaut) avec le support de la concurrence stricte et une gestion poussée du multithreading avec:
+- Le passage en background des tâches via les fonctions `nonisolated`, `async` / `await` et l'usage de `Task.detached`.
+- `AsyncStream` pour la recherche avec un effet `debounce` (comme le font les frameworks `Combine` et `RxSwift`).
+- La gestion du `@MainActor`.
+- L'usage d'un `actor` pour la gestion des données en cache, afin que son usage soit **thread-safe**.
 
 Aucun framework externe n'est utilisé étant donné qu'ils sont **strictement interdits** dans ce test.
 
 ### Difficultés rencontrées
+- Le support de la concurrence stricte de Swift 6 avec l'isolation (`@MainActor`, `Sendable`, `nonisolated`, `Task`, `Task.detached`) pour éviter les **data races** et les **race conditions** et l'utilisation du background pour une meilleure performance.
+- La synchronisation du filtrage actif, en effet il peut facilement y avoir des bugs si on néglige certaines choses comme une recherche active (enclenchant un filtre) avec un filtrage par catégorie et vice-versa.
+- La gestion du flux d'images lors du scroll pour une performance optimale.
+- La mise en place de l'architecture et le respect des principes du SOLID.
+- Le support des tests unitaires.
